@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def depositar(saldo, valor, extrato, /):
     try:
         if valor > 0:
@@ -53,14 +55,27 @@ def exibir_extrato(saldo, /, *, extrato):
 
 def criar_usuario(usuarios):
     cpf = input("Informe o CPF (somente números): ")
-    usuario = filtrar_usuario(cpf, usuarios) 
     
+    if len(cpf) != 11 or not cpf.isdigit():
+        print("CPF inválido! O CPF deve conter exatamente 11 números.")
+        return
+    
+    usuario = filtrar_usuario(cpf, usuarios)
+
     if usuario:
         print("Usuário com CPF já cadastrado!")
         return
+      
 
     nome = input("Digite o nome completo: ")
-    data_nascimento = input("Digite a data de nascimento (dd-mm-aaaa): ")
+
+    while True:
+        try:
+            data_nascimento = datetime.strptime(input("Digite a data de nascimento (dd-mm-aaaa): "), "%d-%m-%Y")
+            break  # Se a conversão for bem-sucedida, saímos do loop
+        except ValueError:
+            print("Formato de data inválido! Por favor, insira a data no formato dd-mm-aaaa.")
+    
     endereco = input("Digite o endereço (logradouro, nro - bairro - cidade/sigla estado): ")
 
     usuarios.append({"nome": nome, "data_nascimento": data_nascimento, "cpf": cpf, "endereco": endereco})
@@ -68,7 +83,7 @@ def criar_usuario(usuarios):
 
 def filtrar_usuario(cpf, usuarios):
     usuarios_filtrados = [usuario for usuario in usuarios if usuario["cpf"]==cpf]
-    return usuarios_filtrados[0] if usuarios_filtrados else None   
+    return usuarios_filtrados[0] if usuarios_filtrados else None
 
 def criar_conta(agencia, numero_conta, usuarios):
     cpf = input("Informe o CPF do usuário: ")
@@ -78,24 +93,24 @@ def criar_conta(agencia, numero_conta, usuarios):
     if usuario:
       print("Conta criada com sucesso!")
       return {"agencia": agencia, "numero_conta": numero_conta, "usuario": usuario}
-    
+
     else:
       print("Usuário não encontrado. Criação de conta encerrada.")
-      
-    
+
+
 
 def listar_contas(contas):
     print("======== LISTA DE CONTAS ========")
     if not contas:
       print("Nenhuma conta cadastrada.")
-    
+
     else:
       for conta in contas:
         print(f"Agência: {conta['agencia']}")
         print(f"Número da Conta: {conta['numero_conta']}")
         print(f"Titular: {conta['usuario']['nome']}")
         print("=" * 25)
-    
+
 def menu():
     print("=" * 10  + "M E N U"  + "=" * 10)
     while True:
@@ -119,7 +134,7 @@ def main():
     AGENCIA = "0001"
     usuarios = []
     contas = []
-
+ 
     while True:
         opcao = menu()
 
